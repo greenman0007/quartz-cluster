@@ -5,7 +5,7 @@ import com.zzitbar.quartzcluster.dto.PageDataDto;
 import com.zzitbar.quartzcluster.dto.PageReqDto;
 
 /**
- * @auther zhangtengfei
+ * @auther zzitbar
  * @create 2019-05-30 上午 09:05
  * @Description
  */
