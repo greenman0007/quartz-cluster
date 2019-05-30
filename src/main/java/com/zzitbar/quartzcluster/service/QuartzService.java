@@ -13,7 +13,7 @@ public interface QuartzService extends IService {
 
     PageDataDto getJobAndTriggerDetails(PageReqDto dto);
 
-    void addJob(String jobClassName, String jobGroupName, String cronExpression) throws Exception;
+    void addJob(String jobClassName, String jobGroupName, String cronExpression, String jobDescription) throws Exception;
 
     void pauseJob(String jobClassName, String jobGroupName) throws Exception;
 

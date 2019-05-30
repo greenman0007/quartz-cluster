@@ -2,20 +2,52 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zzitbar.quartzcluster.mapper.QuartzMapper">
 
-    <select id="getJobAndTriggerDetails" resultType="com.zzitbar.quartzcluster.dto.JobAndTriggerDto">
+    <resultMap type="com.zzitbar.quartzcluster.entity.JobAndTrigger" id="JobAndTriggerMap">
+        <!-- 属性名和数据库列名映射 -->
+        <result column="JOB_NAME" property="jobName"/>
+        <result column="JOB_GROUP" property="jobGroup"/>
+        <result column="JOB_CLASS_NAME" property="jobClassName"/>
+        <result column="DESCRIPTION" property="jobDescription"/>
+        <result column="TRIGGER_NAME" property="triggerName"/>
+        <result column="TRIGGER_GROUP" property="triggerGroup"/>
+        <result column="PREV_FIRE_TIME" property="prevFireTime"/>
+        <result column="NEXT_FIRE_TIME" property="nextFireTime"/>
+        <result column="TRIGGER_STATE" property="triggerState"/>
+        <result column="TRIGGER_TYPE" property="triggerType"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="CRON_EXPRESSION" property="cronExpression"/>
+        <result column="TIME_ZONE_ID" property="timeZoneId"/>
+        <result column="REPEAT_INTERVAL" property="repeatInterval"/>
+        <result column="TIMES_TRIGGERED" property="timesTriggered"/>
+    </resultMap>
+
+    <select id="getJobAndTriggerDetails" resultMap="JobAndTriggerMap">
         SELECT
-            qrtz_job_details.JOB_NAME,
-            qrtz_job_details.JOB_GROUP,
-            qrtz_job_details.JOB_CLASS_NAME,
-            qrtz_triggers.TRIGGER_NAME,
-            qrtz_triggers.TRIGGER_GROUP,
-            qrtz_simple_triggers.REPEAT_INTERVAL,
-            qrtz_simple_triggers.TIMES_TRIGGERED
+          QRTZ_JOB_DETAILS.JOB_NAME,
+          QRTZ_JOB_DETAILS.JOB_GROUP,
+          QRTZ_JOB_DETAILS.JOB_CLASS_NAME,
+          QRTZ_JOB_DETAILS.DESCRIPTION,
+          QRTZ_TRIGGERS.TRIGGER_NAME,
+          QRTZ_TRIGGERS.TRIGGER_GROUP,
+          QRTZ_TRIGGERS.PREV_FIRE_TIME,
+          QRTZ_TRIGGERS.NEXT_FIRE_TIME,
+          QRTZ_TRIGGERS.TRIGGER_STATE,
+          QRTZ_TRIGGERS.TRIGGER_TYPE,
+          QRTZ_TRIGGERS.START_TIME,
+          QRTZ_CRON_TRIGGERS.CRON_EXPRESSION,
+          QRTZ_CRON_TRIGGERS.TIME_ZONE_ID,
+          QRTZ_SIMPLE_TRIGGERS.REPEAT_INTERVAL,
+          QRTZ_SIMPLE_TRIGGERS.TIMES_TRIGGERED
         FROM
-            qrtz_job_details
-            JOIN qrtz_triggers
-            JOIN qrtz_simple_triggers ON qrtz_job_details.JOB_NAME = qrtz_triggers.JOB_NAME
-            AND qrtz_triggers.TRIGGER_NAME = qrtz_simple_triggers.TRIGGER_NAME
-            AND qrtz_triggers.TRIGGER_GROUP = qrtz_simple_triggers.TRIGGER_GROUP
+          QRTZ_JOB_DETAILS
+          LEFT JOIN QRTZ_TRIGGERS
+          ON QRTZ_JOB_DETAILS.JOB_NAME = QRTZ_TRIGGERS.JOB_NAME
+          AND QRTZ_JOB_DETAILS.JOB_GROUP = QRTZ_TRIGGERS.TRIGGER_GROUP
+          LEFT JOIN QRTZ_CRON_TRIGGERS
+            ON QRTZ_TRIGGERS.TRIGGER_NAME = QRTZ_CRON_TRIGGERS.TRIGGER_NAME
+            AND QRTZ_TRIGGERS.TRIGGER_GROUP = QRTZ_CRON_TRIGGERS.TRIGGER_GROUP
+          LEFT JOIN QRTZ_SIMPLE_TRIGGERS
+            ON QRTZ_TRIGGERS.TRIGGER_NAME = QRTZ_SIMPLE_TRIGGERS.TRIGGER_NAME
+            AND QRTZ_TRIGGERS.TRIGGER_GROUP = QRTZ_SIMPLE_TRIGGERS.TRIGGER_GROUP
     </select>
 </mapper>

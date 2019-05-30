@@ -2,7 +2,7 @@ package com.zzitbar.quartzcluster.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zzitbar.quartzcluster.dto.JobAndTriggerDto;
+import com.zzitbar.quartzcluster.entity.JobAndTrigger;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +15,5 @@ import java.util.List;
 @Repository
 public interface QuartzMapper extends BaseMapper {
 
-    List<JobAndTriggerDto> getJobAndTriggerDetails(Page page);
+    List<JobAndTrigger> getJobAndTriggerDetails(Page page);
 }

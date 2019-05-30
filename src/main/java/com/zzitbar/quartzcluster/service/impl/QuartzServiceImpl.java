@@ -1,9 +1,9 @@
 package com.zzitbar.quartzcluster.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zzitbar.quartzcluster.dto.JobAndTriggerDto;
 import com.zzitbar.quartzcluster.dto.PageDataDto;
 import com.zzitbar.quartzcluster.dto.PageReqDto;
+import com.zzitbar.quartzcluster.entity.JobAndTrigger;
 import com.zzitbar.quartzcluster.mapper.QuartzMapper;
 import com.zzitbar.quartzcluster.service.QuartzService;
 import org.quartz.*;
@@ -29,18 +29,34 @@ public class QuartzServiceImpl extends ServiceImpl implements QuartzService {
 
     @Override
     public PageDataDto getJobAndTriggerDetails(PageReqDto dto) {
-        List<JobAndTriggerDto> data = quartzMapper.getJobAndTriggerDetails(dto.getPage());
+        List<JobAndTrigger> data = quartzMapper.getJobAndTriggerDetails(dto.getPage());
         return PageDataDto.buildPageData(dto, data);
     }
 
     @Override
-    public void addJob(String jobClassName, String jobGroupName, String cronExpression) throws Exception {
-        JobDetail jobDetail = JobBuilder.newJob(getClass(jobClassName).getClass()).withIdentity(jobClassName, jobGroupName).build();
+    public void addJob(String jobClassName, String jobGroupName, String cronExpression, String jobDescription) throws Exception {
+        // 启动调度器
+        scheduler.start();
+        //构建job信息
+        JobKey jobKey = JobKey.jobKey(jobClassName, jobGroupName);
+        JobDetail jobDetail = scheduler.getJobDetail(jobKey);
         //表达式调度构建器(即任务执行的时间)
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
         //按新的cronExpression表达式构建一个新的trigger
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(jobClassName, jobGroupName).withSchedule(scheduleBuilder).build();
-        scheduler.scheduleJob(jobDetail, trigger);
+        TriggerKey triggerKey = TriggerKey.triggerKey(jobClassName, jobGroupName);
+        CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+        if (null != trigger && null != jobDetail) {
+            // 按新的cronExpression表达式重新构建trigger
+            trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
+            jobDetail = jobDetail.getJobBuilder().newJob(getClass(jobClassName).getClass()).withDescription(jobDescription).withIdentity(jobClassName, jobGroupName).build();
+            // 按新的trigger重新设置job执行
+            scheduler.rescheduleJob(triggerKey, trigger);
+        } else {
+            trigger = TriggerBuilder.newTrigger().withIdentity(jobClassName, jobGroupName)
+                    .withSchedule(scheduleBuilder).build();
+            jobDetail = JobBuilder.newJob(getClass(jobClassName).getClass()).withDescription(jobDescription).withIdentity(jobClassName, jobGroupName).build();
+            scheduler.scheduleJob(jobDetail, trigger);
+        }
     }
 
     @Override

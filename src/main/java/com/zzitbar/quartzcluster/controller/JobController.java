@@ -23,6 +23,16 @@ public class JobController extends BaseController{
     @Autowired
     private QuartzService quartzService;
 
+    @GetMapping("/index")
+    public String index() {
+        return "job";
+    }
+
+    /**
+     * 任务列表
+     * @param dto
+     * @return
+     */
     @GetMapping(value = "/list")
     @ResponseBody
     public ResultDto queryjob(PageReqDto dto) {
@@ -40,8 +50,8 @@ public class JobController extends BaseController{
      */
     @PostMapping(value = "/add")
     @ResponseBody
-    public ResultDto add(String jobClassName, String jobGroupName, String cronExpression) throws Exception {
-        quartzService.addJob(jobClassName, jobGroupName, cronExpression);
+    public ResultDto add(String jobClassName, String jobGroupName, String cronExpression, String jobDescription) throws Exception {
+        quartzService.addJob(jobClassName, jobGroupName, cronExpression, jobDescription);
         return success();
     }
 
